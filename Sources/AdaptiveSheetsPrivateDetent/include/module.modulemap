@@ -1,0 +1,12 @@
+//
+//  module.modulemap
+//  AdaptiveSheets
+//
+//  Created by Huy Trinh Duc on 25/3/25.
+//
+
+module AdaptiveSheetsPrivateDetent {
+    header "AdaptiveSheetsPrivateDetent.h"
+
+    export *
+}
