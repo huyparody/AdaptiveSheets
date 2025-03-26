@@ -1,3 +1,4 @@
+// A SwiftUI library for adaptive bottom sheets with UIKit integration
 //
 //  UIKitBottomSheet.swift
 //  AdaptiveSheets
@@ -10,12 +11,26 @@ import SwiftUI
 import UIKit
 
 extension View {
+    /**
+     Presents a UIKit-based bottom sheet when a binding to a Boolean value is true.
+     
+     - Parameters:
+        - isPresented: A binding to a Boolean value that determines whether to present the sheet.
+        - content: A closure that returns the content of the sheet.
+        - backgroundInteract: Determines whether touches outside the sheet are passed to underlying views.
+        - grabberIndicator: Controls the visibility of the grabber handle at the top of the sheet.
+        - startDetent: The initial presentation state of the sheet.
+        - detents: The possible sizes (heights) at which the sheet can rest.
+        - disableDismissOnSwipe: When true, prevents dismissal by swiping down.
+        - cornerRadius: The corner radius applied to the sheet.
+        - onDismiss: A closure executed when the sheet is dismissed.
+     */
     func uiKitSheet<Content: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder content: @escaping () -> Content,
         backgroundInteract: AdaptivePresetationBackgroundInteraction = .automatic,
         grabberIndicator: AdaptiveVisibility = .visible,
-        startState: AdaptiveDetents? = .large,
+        startDetent: AdaptiveDetents? = .large,
         detents: [AdaptiveDetents],
         disableDismissOnSwipe: Bool = false,
         cornerRadius: CGFloat,
@@ -28,7 +43,7 @@ extension View {
                     isPresented: isPresented,
                     backgroundInteraction: backgroundInteract,
                     grabberIndicator: grabberIndicator,
-                    startState: startState,
+                    startDetent: startDetent,
                     detents: detents,
                     cornerRadius: cornerRadius,
                     disableDismissOnSwipe: disableDismissOnSwipe,
@@ -37,12 +52,26 @@ extension View {
             )
     }
     
+    /**
+     Presents a UIKit-based bottom sheet when a binding to an optional item is non-nil.
+     
+     - Parameters:
+        - item: A binding to an optional value that determines whether to present the sheet.
+        - content: A closure that returns the content of the sheet based on the item.
+        - backgroundInteract: Determines whether touches outside the sheet are passed to underlying views.
+        - grabberIndicator: Controls the visibility of the grabber handle at the top of the sheet.
+        - startDetent: The initial presentation state of the sheet.
+        - detents: The possible sizes (heights) at which the sheet can rest.
+        - disableDismissOnSwipe: When true, prevents dismissal by swiping down.
+        - cornerRadius: The corner radius applied to the sheet.
+        - onDismiss: A closure executed when the sheet is dismissed.
+     */
     func uiKitSheet<Item, Content>(
         item: Binding<Item?>,
         @ViewBuilder content: @escaping (Item?) -> Content,
         backgroundInteract: AdaptivePresetationBackgroundInteraction = .automatic,
         grabberIndicator: AdaptiveVisibility = .visible,
-        startState: AdaptiveDetents? = .large,
+        startDetent: AdaptiveDetents? = .large,
         detents: [AdaptiveDetents],
         disableDismissOnSwipe: Bool = false,
         cornerRadius: CGFloat,
@@ -57,7 +86,7 @@ extension View {
                     item: item,
                     backgroundInteraction: backgroundInteract,
                     grabberIndicator: grabberIndicator,
-                    startState: startState,
+                    startDetent: startDetent,
                     detents: detents,
                     disableDismissOnSwipe: disableDismissOnSwipe,
                     cornerRadius: cornerRadius,
@@ -67,15 +96,19 @@ extension View {
     }
 }
 
-// UIKit integration
+// MARK: - UIKit Integration Helper Types
 
+/**
+ UIViewControllerRepresentable that manages a bottom sheet presentation based on an optional item.
+ This helper bridges SwiftUI and UIKit presentation controllers.
+ */
 struct UIKitSheetItemHelper<Item: Identifiable, Content: View>: UIViewControllerRepresentable {
     var sheetView: Content
     let controller: UIViewController = UIViewController()
     @Binding var item: Item?
     var backgroundInteraction: AdaptivePresetationBackgroundInteraction
     var grabberIndicator: AdaptiveVisibility
-    var startState: AdaptiveDetents?
+    var startDetent: AdaptiveDetents?
     var detents: [AdaptiveDetents]
     var disableDismissOnSwipe: Bool
     var cornerRadius: CGFloat
@@ -89,6 +122,9 @@ struct UIKitSheetItemHelper<Item: Identifiable, Content: View>: UIViewController
         return controller
     }
     
+    /**
+     Updates the view controller to present or dismiss the sheet based on changes to the item binding.
+     */
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         if item != nil {
             // Only present if not already presented
@@ -97,7 +133,7 @@ struct UIKitSheetItemHelper<Item: Identifiable, Content: View>: UIViewController
                     rootView: sheetView,
                     backgroundInteraction: backgroundInteraction,
                     grabberIndicator: grabberIndicator,
-                    startDetent: startState,
+                    startDetent: startDetent,
                     detents: detents,
                     cornerRadius: cornerRadius
                 )
@@ -117,7 +153,10 @@ struct UIKitSheetItemHelper<Item: Identifiable, Content: View>: UIViewController
         }
     }
     
-    //on dismiss...
+    /**
+     Coordinator that handles sheet presentation controller delegate methods
+     and maintains state between view updates.
+     */
     final class Coordinator: NSObject, UISheetPresentationControllerDelegate {
         
         var parent: UIKitSheetItemHelper
@@ -133,6 +172,9 @@ struct UIKitSheetItemHelper<Item: Identifiable, Content: View>: UIViewController
     }
 }
 
+/**
+ UIViewControllerRepresentable that manages a bottom sheet presentation based on a Boolean binding.
+ */
 struct UIKitSheetHelper<Content: View>: UIViewControllerRepresentable {
     
     var sheetView: Content
@@ -140,7 +182,7 @@ struct UIKitSheetHelper<Content: View>: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
     var backgroundInteraction: AdaptivePresetationBackgroundInteraction
     var grabberIndicator: AdaptiveVisibility
-    var startState: AdaptiveDetents?
+    var startDetent: AdaptiveDetents?
     var detents: [AdaptiveDetents]
     var cornerRadius: CGFloat
     var disableDismissOnSwipe: Bool
@@ -154,6 +196,9 @@ struct UIKitSheetHelper<Content: View>: UIViewControllerRepresentable {
         return controller
     }
     
+    /**
+     Updates the view controller to present or dismiss the sheet based on changes to the isPresented binding.
+     */
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         if isPresented {
             // Only present if not already presented
@@ -162,7 +207,7 @@ struct UIKitSheetHelper<Content: View>: UIViewControllerRepresentable {
                     rootView: sheetView,
                     backgroundInteraction: backgroundInteraction,
                     grabberIndicator: grabberIndicator,
-                    startDetent: startState,
+                    startDetent: startDetent,
                     detents: detents,
                     cornerRadius: cornerRadius
                 )
@@ -182,7 +227,10 @@ struct UIKitSheetHelper<Content: View>: UIViewControllerRepresentable {
         }
     }
     
-    //on dismiss...
+    /**
+     Coordinator that handles sheet presentation controller delegate methods
+     and maintains state between view updates.
+     */
     final class Coordinator: NSObject, UISheetPresentationControllerDelegate {
         
         var parent: UIKitSheetHelper
@@ -198,6 +246,10 @@ struct UIKitSheetHelper<Content: View>: UIViewControllerRepresentable {
     }
 }
 
+/**
+ A custom UIHostingController that configures a UISheetPresentationController with
+ the specified adaptive sheet parameters.
+ */
 final class CustomHostingController<Content: View>: UIHostingController<Content> {
     
     var backgroundInteraction: AdaptivePresetationBackgroundInteraction
@@ -225,6 +277,10 @@ final class CustomHostingController<Content: View>: UIHostingController<Content>
         fatalError("init(coder:) has not been implemented")
     }
     
+    /**
+     Configures the presentation controller with the specified sheet parameters
+     when the view loads.
+     */
     override func viewDidLoad() {
         super.viewDidLoad()
         
