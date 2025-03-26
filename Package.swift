@@ -23,5 +23,7 @@ let package = Package(
         .target(name: "AdaptiveSheetsPrivateDetent",
                 dependencies: [],
                 publicHeadersPath: "include"),
+        .testTarget(name: "AdaptiveSheetsTest",
+                    dependencies: ["AdaptiveSheets"])
     ]
 )
